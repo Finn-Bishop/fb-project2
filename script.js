@@ -1,3 +1,5 @@
+// Trigger 81-85
+// off 150 
 
 class Pet {
   // Runs once when you write `new Pet(...)`.
@@ -78,7 +80,6 @@ $(function() { // Makes sure that your function is called once all the DOM eleme
     // so keys and mouse clicks always share the same logic.
     // Listening on `document` catches key presses anywhere on the page.
     $(document).on('keydown', function(event) {
-      if (event.ctrlKey || event.metaKey || event.altKey) return; // leave browser shortcuts alone (e.g. Ctrl+P = print)
       const key = event.key.toLowerCase(); // so Caps Lock / Shift still work
       if (key === 't') $('.treat-button').trigger('click');
       if (key === 'p') $('.play-button').trigger('click');
@@ -136,15 +137,23 @@ $(function() { // Makes sure that your function is called once all the DOM eleme
     // Single entry point for "something changed, refresh the page".
     // Every handler calls this, so any future check (like the one below) only needs adding here.
     function checkAndUpdatePetInfoInHtml() {
+      disableUnhappyPetCards();
       updatePetInfoInHtml();
     }
 
+    // Stops a pet's sidebar card from being selected once its happiness hits 0.
+    // (The Pet setter blocks negative values, so 0 is as low as happiness can go.)
+    // .off('click', clickedPetCard) removes the listener that .on() attached above,
+    // so clicking that card no longer does anything.
+    function disableUnhappyPetCards() {
+      $('.pet-card').each(function(i) {
+        if (pets[i] && pets[i].happiness <= 0) {
+          $(this).off('click', clickedPetCard);
+        }
+      });
+    }
+
     // Unused for now — the Pet setters already stop weight and happiness going below zero.
-    // // Keeps weight and happiness from going below zero
-    // function checkWeightAndHappinessBeforeUpdating() {
-    //   console.log("checked");
-    //
-    // }
 
     // Redraws everything on the page from the `pets` array.
     // The page never stores its own copy of the data; it always re-reads `pets`.
